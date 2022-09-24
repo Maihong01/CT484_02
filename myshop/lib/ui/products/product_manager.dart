@@ -1,8 +1,12 @@
 import '../../models/product.dart';
 
 class ProductManager {
+  Product findById(String id) {
+    return _items.firstWhere((prod) => prod.id == id);
+  }
+
   final List<Product> _items = [
-     Product(
+    Product(
       id: 'p1',
       title: 'Red Shirt',
       description: 'A red shirt - it is pretty red!',
@@ -46,6 +50,6 @@ class ProductManager {
   }
 
   List<Product> get favoriteItems {
-    return _items.where((prodItem)=> prodItem.isFavorite).toList();
+    return _items.where((prodItem) => prodItem.isFavorite).toList();
   }
 }

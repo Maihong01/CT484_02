@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../cart/cart_screen.dart';
 import 'products_grid.dart';
+import '../shared/app_drawer.dart';
 
 enum FilterOptions { favorites, all }
 
@@ -9,7 +11,6 @@ class ProductsOverViewScreen extends StatefulWidget {
   @override
   State<ProductsOverViewScreen> createState() => _ProductsOverViewScreenState();
 }
-
 
 class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
   var _showOnlyFavorites = false;
@@ -24,6 +25,7 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
           buildShoppinCartIcon(),
         ],
       ),
+      drawer: const AppDrawer(),
       body: ProductsGrid(_showOnlyFavorites),
     );
   }
@@ -34,7 +36,7 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
         Icons.shopping_cart,
       ),
       onPressed: () {
-        print('Go to cart screen');
+        Navigator.of(context).pushNamed(CartScreen.routeName);
       },
     );
   }
@@ -58,10 +60,10 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
           value: FilterOptions.favorites,
           child: Text('Only Favorites'),
         ),
-         const PopupMenuItem(
+        const PopupMenuItem(
           value: FilterOptions.all,
           child: Text('Show All'),
-         ),
+        ),
       ],
     );
   }

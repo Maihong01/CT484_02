@@ -9,6 +9,8 @@ import 'ui/products/product_manager.dart';
 import 'ui/products/product_overview_screen.dart';
 import 'ui/products/user_products_screen.dart';
 
+import 'package:provider/provider.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,34 +20,41 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Shop',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-          fontFamily: 'Lato',
-          colorScheme:
-              ColorScheme.fromSwatch(primarySwatch: Colors.purple).copyWith(
-            secondary: Colors.deepOrange,
-          )),
-      home: const ProductsOverViewScreen(),
-      routes: {
-        CartScreen.routeName: (ctx) => const CartScreen(),
-        OrdersScreen.routeName: (ctx) => const OrdersScreen(),
-        UserProductsScreen.routeName: (ctx) => const UserProductsScreen(),
-      },
-      onGenerateRoute: (settings) {
-        if (settings.name == ProductDetailScreen.routeName) {
-          final productId = settings.arguments as String;
-          return MaterialPageRoute(
-            builder: (ctx) {
-              return ProductDetailScreen(
-                ProductManager().findById(productId),
-              );
-            },
-          );
-        }
-        return null;
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (ctx) => ProductManager(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'My Shop',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            fontFamily: 'Lato',
+            colorScheme:
+                ColorScheme.fromSwatch(primarySwatch: Colors.purple).copyWith(
+              secondary: Colors.deepOrange,
+            )),
+        home: const ProductsOverViewScreen(),
+        routes: {
+          CartScreen.routeName: (ctx) => const CartScreen(),
+          OrdersScreen.routeName: (ctx) => const OrdersScreen(),
+          UserProductsScreen.routeName: (ctx) => const UserProductsScreen(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == ProductDetailScreen.routeName) {
+            final productId = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (ctx) {
+                return ProductDetailScreen(
+                  ctx.read<ProductManager>().findById(productId),
+                );
+              },
+            );
+          }
+          return null;
+        },
+      ),
     );
   }
 }

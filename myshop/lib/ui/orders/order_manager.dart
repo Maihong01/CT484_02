@@ -29,7 +29,7 @@ class OrdersManager with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
+  void addOrder(List<CartItem> cartProducts, double total) async {
     _orders.insert(
       0,
       OrderItem(

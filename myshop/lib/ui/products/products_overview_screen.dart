@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myshop/ui/screens.dart';
+import 'package:provider/provider.dart';
 import '../cart/cart_manager.dart';
 import 'products_grid.dart';
 import '../shared/app_drawer.dart';
@@ -15,7 +16,14 @@ class ProductsOverViewScreen extends StatefulWidget {
 }
 
 class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
-  var _showOnlyFavorites = false;
+  final _showOnlyFavorites = ValueNotifier<bool>(false);
+  late Future<void> _fetchProducts;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProducts = context.read<ProductManager>().fetchProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +36,21 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
         ],
       ),
       drawer: const AppDrawer(),
-      body: ProductsGrid(_showOnlyFavorites),
+      body: FutureBuilder(
+        future: _fetchProducts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ValueListenableBuilder<bool>(
+                valueListenable: _showOnlyFavorites,
+                builder: (context, onlyFavorites, child) {
+                  return ProductsGrid(onlyFavorites);
+                });
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
     );
   }
 
@@ -51,9 +73,9 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
       onSelected: (FilterOptions selectedValue) {
         setState(() {
           if (selectedValue == FilterOptions.favorites) {
-            _showOnlyFavorites = true;
+            _showOnlyFavorites.value = true;
           } else {
-            _showOnlyFavorites = false;
+            _showOnlyFavorites.value = false;
           }
         });
       },

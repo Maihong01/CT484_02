@@ -1,45 +1,10 @@
-import 'dart:collection';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import '../../models/product.dart';
 import '../../models/auth_token.dart';
 import '../../services/products_service.dart';
 
-class ProductManager with ChangeNotifier {
-  void addProductManager(Product product) {
-    _items.add(
-      product.copyWith(
-        id: 'p${DateTime.now().toIso8601String()}',
-      ),
-    );
-    notifyListeners();
-  }
-
-  void updateProduct(Product product) {
-    final index = _items.indexWhere((item) => item.id == product.id);
-    if (index >= 0) {
-      _items[index] = product;
-      notifyListeners();
-    }
-  }
-
-  void togggleFavoriteStatus(Product product) {
-    final savedStatus = product.isFavorite;
-    product.isFavorite = !savedStatus;
-  }
-
-  void deleteProduct(String id) {
-    final index = _items.indexWhere((item) => item.id == id);
-    _items.removeAt(index);
-    notifyListeners();
-  }
-
-  Product findById(String id) {
-    return _items.firstWhere((prod) => prod.id == id);
-  }
-
+class ProductsManager with ChangeNotifier {
   List<Product> _items = [
     // Product(
     //   id: 'p1',
@@ -78,7 +43,7 @@ class ProductManager with ChangeNotifier {
   ];
   final ProductsService _productsService;
 
-  ProductManager([AuthToken? authToken])
+  ProductsManager([AuthToken? authToken])
       : _productsService = ProductsService(authToken);
 
   set authToken(AuthToken? authToken) {
@@ -110,12 +75,46 @@ class ProductManager with ChangeNotifier {
     return _items.where((prodItem) => prodItem.isFavorite).toList();
   }
 
-  // void addProduct(Product editedProduct) {
-  // _items.add(
+  Product findById(String id) {
+    return _items.firstWhere((prod) => prod.id == id);
+  }
+
+  // void addProduct(Product product) {
+  //   _items.add(
   //     product.copyWith(
   //       id: 'p${DateTime.now().toIso8601String()}',
   //     ),
   //   );
   //   notifyListeners();
   // }
+
+  Future<void> updateProduct(Product product) async {
+    final index = _items.indexWhere((item) => item.id == product.id);
+    if (index >= 0) {
+      if (await _productsService.updateProduct(product)) {
+        _items[index] = product;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> toggleFavoriteStatus(Product product) async {
+    final savedStatus = product.isFavorite;
+    product.isFavorite = !savedStatus;
+
+    if (!await _productsService.saveFavoriteStatus(product)) {
+      product.isFavorite = savedStatus;
+    }
+  }
+
+  Future<void> deleteProduct(String id) async {
+    final index = _items.indexWhere((item) => item.id == id);
+    Product? existingProduct = _items[index];
+    _items.removeAt(index);
+    notifyListeners();
+    if (!await _productsService.deleteProduct(id)) {
+      _items.insert(index, existingProduct);
+      notifyListeners();
+    }
+  }
 }

@@ -10,12 +10,12 @@ class UserProductsScreen extends StatelessWidget {
   const UserProductsScreen({super.key});
 
   Future<void> _refreshProducts(BuildContext context) async {
-    await context.read<ProductManager>().fetchProducts(true);
+    await context.read<ProductsManager>().fetchProducts(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final productsManager = ProductManager();
+    final productsManager = ProductsManager();
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +43,7 @@ class UserProductsScreen extends StatelessWidget {
   }
 
   Widget buildUserProductListView(productsManager) {
-    return Consumer<ProductManager>(builder: (ctx, productsManager, child) {
+    return Consumer<ProductsManager>(builder: (ctx, productsManager, child) {
       return ListView.builder(
         itemCount: productsManager.itemCount,
         itemBuilder: (ctx, i) => Column(

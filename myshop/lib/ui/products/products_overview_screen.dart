@@ -22,7 +22,7 @@ class _ProductsOverViewScreenState extends State<ProductsOverViewScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchProducts = context.read<ProductManager>().fetchProducts();
+    _fetchProducts = context.read<ProductsManager>().fetchProducts();
   }
 
   @override
